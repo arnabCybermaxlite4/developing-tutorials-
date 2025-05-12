@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Digital Clock</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0a192f;
+            overflow: hidden;
+        }
+
+        .world-map {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/WorldMap-A_with_Frame.png/1920px-WorldMap-A_with_Frame.png');
+            background-size: cover;
+            opacity: 0.15;
+            animation: mapFloat 20s infinite alternate;
+            filter: blur(2px);
+        }
+
+        .clock-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3rem 4rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid transparent;
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+            animation: borderGlow 3s infinite alternate;
+        }
+
+        .clock-container:hover {
+            transform: translateY(-5px);
+            border-color: rgba(66, 211, 255, 0.5);
+            box-shadow: 0 0 30px rgba(66, 211, 255, 0.3);
+        }
+
+        #clock {
+            font-size: 5rem;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(66, 211, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #clock:hover {
+            text-shadow: 0 0 30px rgba(66, 211, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        .time-info {
+            color: #8892b0;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-top: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .time-info.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes borderGlow {
+            0% {
+                box-shadow: 0 0 20px rgba(66, 211, 255, 0.2);
+            }
+            100% {
+                box-shadow: 0 0 40px rgba(66, 211, 255, 0.4);
+            }
+        }
+
+        @keyframes mapFloat {
+            0% {
+                transform: scale(1.1) translate(-2%, -2%);
+            }
+            100% {
+                transform: scale(1.2) translate(2%, 2%);
+            }
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(66, 211, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 6s infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .clock-container.circle {
+            border-radius: 50%;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .clock-container.square {
+            border-radius: 0;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clock-container.rectangle {
+            border-radius: 10px;
+            width: 400px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .clock-container {
+            transition: all 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="world-map"></div>
+    <div class="particles"></div>
+    <div class="clock-container">
+        <div id="clock">00:00:00</div>
+        <div class="time-info" id="timeInfo"></div>
+    </div>
+
+    <script>
+        let currentShape = 'default';
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('clock').innerHTML = `${hours}:${minutes}:${seconds}`;
+        }
+
+        function createParticles() {
+            const particles = document.querySelector('.particles');
+            for(let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 3 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        document.getElementById('clock').addEventListener('click', function() {
+            const now = new Date();
+            const timeInfo = document.getElementById('timeInfo');
+            const clockContainer = document.querySelector('.clock-container');
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            switch(currentShape) {
+                case 'default':
+                    currentShape = 'circle';
+                    clockContainer.className = 'clock-container circle';
+                    break;
+                case 'circle':
+                    currentShape = 'square';
+                    clockContainer.className = 'clock-container square';
+                    break;
+                case 'square':
+                    currentShape = 'rectangle';
+                    clockContainer.className = 'clock-container rectangle';
+                    break;
+                case 'rectangle':
+                    currentShape = 'default';
+                    clockContainer.className = 'clock-container';
+                    break;
+            }
+            
+            let timeDescription = '';
+            if(hours < 12) timeDescription = 'Good Morning';
+            else if(hours < 17) timeDescription = 'Good Afternoon';
+            else timeDescription = 'Good Evening';
+
+            timeInfo.innerHTML = `${timeDescription}! It's ${hours} hours, ${minutes} minutes, and ${seconds} seconds`;
+            timeInfo.classList.add('visible');
+            
+            setTimeout(() => {
+                timeInfo.classList.remove('visible');
+            }, 3000);
+        });
+
+        // Initialize
+        createParticles();
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
